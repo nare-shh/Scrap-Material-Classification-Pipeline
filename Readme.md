@@ -151,3 +151,38 @@ frame_id,predicted_class,true_class,correct,inference_time_ms
 - `inference_time_ms`: Inference duration
 
 ---
+## Results
+
+### Training Performance
+
+![Training and Validation Curves](results/training_history.png)
+
+The training curves show consistent improvement over 15 epochs:
+- Training loss decreases from 0.65 to 0.05
+- Validation loss stabilizes around 0.22
+- Training accuracy reaches 97%
+- Validation accuracy achieves 94%
+
+### Model Evaluation
+
+![Confusion Matrix](results/confusion_matrix.png)
+
+The confusion matrix demonstrates strong classification performance:
+- Cardboard: 115/116 correct (99%)
+- Glass: 144/154 correct (94%)
+- Metal: 112/119 correct (94%)
+- Paper: 173/180 correct (96%)
+- Plastic: 143/151 correct (95%)
+- Trash: 27/39 correct (69%)
+
+### Simulation Output
+
+![Classification Results](results/classification_results.png)
+
+Sample predictions from the conveyor belt simulation showing:
+- Real-time classification results
+- Inference times ranging from 39ms to 1092ms
+- High accuracy on test samples
+- Consistent performance across different material types
+
+---
