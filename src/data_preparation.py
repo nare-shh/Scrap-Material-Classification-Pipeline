@@ -1,8 +1,3 @@
-"""
-Data Preparation Module
-Loads TrashNet dataset, applies augmentation, and creates train/val/test splits
-"""
-
 import os
 from datasets import load_dataset
 from torch.utils.data import Dataset, DataLoader
@@ -11,7 +6,7 @@ from PIL import Image
 import torch
 
 class TrashNetDataset(Dataset):
-    """Custom Dataset for TrashNet"""
+
     
     def __init__(self, hf_dataset, transform=None):
         self.dataset = hf_dataset
@@ -25,7 +20,7 @@ class TrashNetDataset(Dataset):
         image = item['image']
         label = item['label']
         
-        # Convert to RGB if needed
+       
         if image.mode != 'RGB':
             image = image.convert('RGB')
         
@@ -36,15 +31,7 @@ class TrashNetDataset(Dataset):
 
 
 def get_transforms(is_training=True):
-    """
-    Get data transforms for training and validation
-    
-    Args:
-        is_training: If True, applies augmentation
-    
-    Returns:
-        torchvision transforms
-    """
+   
     if is_training:
         return transforms.Compose([
             transforms.Resize((256, 256)),
@@ -66,47 +53,42 @@ def get_transforms(is_training=True):
 
 
 def prepare_dataloaders(batch_size=32, num_workers=2):
-    """
-    Load dataset and create dataloaders
     
-    Args:
-        batch_size: Batch size for training
-        num_workers: Number of workers for data loading
     
-    Returns:
-        train_loader, val_loader, test_loader, class_names
-    """
-    print("📦 Loading TrashNet dataset from HuggingFace...")
-    
-    # Load dataset
     ds = load_dataset("garythung/trashnet")
     
-    # Get class names
+    
     class_names = ds['train'].features['label'].names
-    print(f"✅ Classes: {class_names}")
-    print(f"📊 Train samples: {len(ds['train'])}")
-    print(f"📊 Test samples: {len(ds['test'])}")
+    print(f"Classes: {class_names}")
+    print(f"Total samples: {len(ds['train'])}")
     
-    # Split train into train and validation (90-10 split)
-    train_val_split = ds['train'].train_test_split(test_size=0.1, seed=42)
     
-    # Create datasets
+    train_val_test = ds['train'].train_test_split(test_size=0.3, seed=42)
+    val_test = train_val_test['test'].train_test_split(test_size=0.5, seed=42)
+    
+    train_data = train_val_test['train']
+    val_data = val_test['train']
+    test_data = val_test['test']
+    
+    print(f"Train samples: {len(train_data)}")
+    print(f"Val samples: {len(val_data)}")
+    print(f"Test samples: {len(test_data)}")
+    
     train_dataset = TrashNetDataset(
-        train_val_split['train'], 
+        train_data, 
         transform=get_transforms(is_training=True)
     )
     
     val_dataset = TrashNetDataset(
-        train_val_split['test'], 
+        val_data, 
         transform=get_transforms(is_training=False)
     )
     
     test_dataset = TrashNetDataset(
-        ds['test'], 
+        test_data, 
         transform=get_transforms(is_training=False)
     )
     
-    # Create dataloaders
     train_loader = DataLoader(
         train_dataset, 
         batch_size=batch_size, 
@@ -131,19 +113,19 @@ def prepare_dataloaders(batch_size=32, num_workers=2):
         pin_memory=True
     )
     
-    print(f"✅ Train batches: {len(train_loader)}")
-    print(f"✅ Val batches: {len(val_loader)}")
-    print(f"✅ Test batches: {len(test_loader)}")
+    print(f" Train batches: {len(train_loader)}")
+    print(f" Val batches: {len(val_loader)}")
+    print(f" Test batches: {len(test_loader)}")
     
     return train_loader, val_loader, test_loader, class_names
 
 
 if __name__ == "__main__":
-    # Test data loading
+    
     train_loader, val_loader, test_loader, class_names = prepare_dataloaders(batch_size=16)
     
-    # Test one batch
+    
     images, labels = next(iter(train_loader))
-    print(f"\n✅ Batch shape: {images.shape}")
-    print(f"✅ Labels shape: {labels.shape}")
-    print(f"✅ Sample labels: {labels[:5]}")
+    print(f"\n Batch shape: {images.shape}")
+    print(f" Labels shape: {labels.shape}")
+    print(f" Sample labels: {labels[:5]}")
