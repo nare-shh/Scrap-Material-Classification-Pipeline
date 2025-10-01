@@ -177,7 +177,7 @@ The confusion matrix demonstrates strong classification performance:
 
 ### Simulation Output
 
-![Classification Results](results/classification_results.png)
+![Classification Results](Simulation_output.png)
 
 Sample predictions from the conveyor belt simulation showing:
 - Real-time classification results
